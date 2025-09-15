@@ -63,6 +63,7 @@
       background: var(--card-2) !important;
       border-bottom: 1px solid var(--border) !important;
       color: var(--text) !important;
+      text-align: center !important;
     }
     table.dataTable td, table.dataTable th{ word-wrap: break-word; vertical-align: middle; }
     table.dataTable tbody td{ border-color: var(--border); color: var(--text); }
@@ -135,11 +136,11 @@
     $('#tbl-summary').DataTable({
       data: ROWS,
       columns: [
-        { title: 'Product Subtype', data: 'product_subtype' },
-        { title: 'Overall Score', data: 'overall_score', className: 'text-end', render:(d)=>fmtNum(d) },
-        { title: 'Overall Search Hits', data: 'overall_st_hits', className: 'text-end', render:(d)=>fmtInt(d) },
-        { title: 'Overall GMV Opportunity', data: 'overall_gmv_oppt', className: 'text-end', render:(d)=>fmtNum(d) },
-        { title: 'Report', data: 'report_href', render:(d)=>toLink(d, 'Open report') }
+        { title: 'Product Subtype', data: 'product_subtype' , className: 'text-center'},
+        { title: 'Overall Score', data: 'overall_score', className: 'text-center', render:(d)=>fmtNum(d) },
+        { title: 'Overall Search Hits', data: 'overall_st_hits', className: 'text-center', render:(d)=>fmtInt(d) },
+        { title: 'Overall GMV Opportunity', data: 'overall_gmv_oppt', className: 'text-center', render:(d)=>fmtNum(d) },
+        { title: 'Report', data: 'report_href', className: 'text-center', render:(d)=>toLink(d, 'Open report') }
       ],
       order: [[0, 'asc']],
       pageLength: 25,
