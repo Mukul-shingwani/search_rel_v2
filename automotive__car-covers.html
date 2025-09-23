@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Search Assortment — automotive / car_covers</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Fonts: Proxima Nova if installed, else Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- DataTables + Buttons -->
+  <link rel="stylesheet" href="https://cdn.datatables.net/v/bs5/dt-2.0.3/b-3.0.1/fh-4.0.1/r-3.0.1/datatables.min.css"/>
+
+  <style>
+    :root {
+      --bg: #0f1220;
+      --card: #141a2a;
+      --card-2: #181e31;
+      --text: #f3f6ff;
+      --text-dim: #b8c1d9;
+      --border: #252c42;
+      --brand: #7aa2ff;
+      --brand-soft: #1a2340;
+      --card-radius: 14px;
+    }
+    * { font-family: "Proxima Nova", Inter, "Segoe UI", Roboto, system-ui, -apple-system, Arial, sans-serif; }
+    html, body { background: var(--bg); color: var(--text); }
+
+    .page-header {
+      background: radial-gradient(1200px 400px at 10% -10%, rgba(122,162,255,.25), transparent),
+                  linear-gradient(90deg, var(--brand-soft), rgba(10,14,25,0.6));
+      border-bottom: 1px solid var(--border);
+    }
+    .page-header h2 { font-weight: 700; letter-spacing:.2px; color: var(--text); }
+    .muted { color: var(--text-dim); }
+
+    .btn, .btn:focus, .btn:active { box-shadow:none; }
+    .btn-outline-secondary { color: var(--text); border-color: var(--border); }
+    .btn-outline-secondary:hover { background: var(--card-2); border-color: var(--border); }
+    .btn-outline-primary { color: var(--text); border-color: var(--brand); }
+    .btn-outline-primary:hover { background: rgba(122,162,255,.12); }
+
+    .section-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--card-radius);
+      box-shadow: 0 8px 24px rgba(0,0,0,.25);
+      padding: 1rem 1.1rem 1.25rem 1.1rem;
+      height: 100%;
+      contain: content;
+      color: var(--text);
+    }
+    .section-title { font-weight: 700; font-size: 1.05rem; margin-bottom:.6rem; color: var(--text); }
+
+    /* Executive summary pills */
+    .summary-pill {
+      border-radius: 999px;
+      padding:.7rem 1.1rem;
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+      border:1px solid var(--border);
+      display:inline-flex; gap:.6rem; align-items:center;
+      box-shadow: 0 6px 16px rgba(0,0,0,.25);
+      margin:.3rem .6rem .3rem 0;
+    }
+    .summary-pill .label { color: var(--text-dim); font-size:.9rem; }
+    .summary-pill .value { font-weight:700; color: var(--text); font-size:1.05rem; }
+
+    /* DataTables dark theme */
+    table.dataTable { table-layout: fixed; color: var(--text); }
+    table.table {
+      --bs-table-color: var(--text);
+      --bs-table-bg: transparent;
+      --bs-table-striped-color: var(--text);
+      --bs-table-hover-color: var(--text);
+      --bs-table-border-color: var(--border);
+      --bs-table-striped-bg: rgba(255,255,255,0.06);
+      --bs-table-hover-bg: rgba(255,255,255,0.08);
+    }
+    /* Center headers horizontally + vertically */
+    table.dataTable thead th {
+      background: var(--card-2) !important;
+      border-bottom: 1px solid var(--border) !important;
+      color: var(--text) !important;
+      text-align: center !important;
+      vertical-align: middle !important;
+    }
+    /* Center body cells horizontally + vertically by default */
+    table.dataTable tbody td {
+      border-color: var(--border);
+      color: var(--text);
+      text-align: center;
+      vertical-align: middle;
+    }
+    /* Override DataTables' numeric right-align helpers */
+    table.dataTable td.dt-type-numeric,
+    table.dataTable th.dt-type-numeric,
+    table.dataTable td.dt-right,
+    table.dataTable th.dt-right,
+    table.dataTable td.dt-body-right,
+    table.dataTable th.dt-head-right {
+      text-align: center !important;
+    }
+
+    /* Inputs */
+    .dataTables_wrapper .dataTables_info,
+    .dataTables_wrapper .dataTables_length label,
+    .dataTables_wrapper .dataTables_filter label { color: var(--text-dim); }
+    .dataTables_wrapper .dataTables_filter input,
+    .dataTables_wrapper .dataTables_length select {
+      background: var(--card-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+    .dataTables_wrapper .dataTables_filter input::placeholder { color: var(--text-dim); }
+
+    /* Pagination */
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+      color: var(--text) !important; border-color: var(--border) !important;
+      background: transparent !important;
+    }
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+      background: var(--brand-soft) !important; border-color: var(--border) !important; color: var(--text) !important;
+    }
+
+    a, a:visited { color: var(--brand); }
+    a:hover { color: #aecdff; }
+
+    /* Long text handling */
+    .wrap-text { white-space: pre-wrap; line-height:1.35rem; color: var(--text); }
+
+    /* Actionables block */
+    .act {
+      display: grid;
+      grid-template-columns: 130px 1fr;
+      align-items: center;
+      column-gap: .8rem;
+      background: var(--card-2); border: 1px solid var(--border);
+      border-radius: 12px; padding:.65rem .8rem; color: var(--text);
+      text-align: left;
+    }
+    .act .tag {
+      justify-self: center;
+      font-size:.72rem; font-weight:700; text-transform:uppercase;
+      letter-spacing:.04em; color: var(--brand);
+      padding:.22rem .55rem; border:1px solid var(--brand); border-radius:999px;
+      background: rgba(122,162,255,.08);
+    }
+    .act .txt { color: var(--text); }
+
+    /* Left-align ONLY the Actionables column */
+    td.col-actionables, th.col-actionables {
+      text-align: left !important;
+      vertical-align: top !important;
+    }
+
+    /* PLP combined cell: stack links vertically */
+    .plp-links a { display:block; line-height:1.2; margin-bottom:.25rem; }
+
+    .footer-note { color: var(--text-dim); font-size:.85rem; }
+
+    /* Filter dropdown styling */
+    .filter-bar {
+      margin-bottom: 1rem;
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+  </style>
+</head>
+
+<body>
+  <header class="page-header py-3">
+    <div class="container">
+      <div class="d-flex flex-wrap align-items-center justify-content-between">
+        <div>
+          <h2 class="mb-0">Search Assortment — automotive / car_covers</h2>
+          <div class="muted">Category: <strong>automotive</strong> &nbsp;|&nbsp; Subtype: <strong>car_covers</strong></div>
+        </div>
+        <div class="text-end">
+          <a class="btn btn-outline-secondary btn-sm" href="#" onclick="window.print()">Print</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container my-4">
+
+    <!-- Executive Summary -->
+    <div class="section-card mb-4">
+      <div class="d-flex align-items-center flex-wrap">
+        <div class="summary-pill"><span class="label">Category GMV (AED, L30D)</span><span class="value" id="pill-score">—</span></div>
+        <div class="summary-pill"><span class="label">Overall Est. Search Hits (L30D)</span><span class="value" id="pill-hits">—</span></div>
+        <div class="summary-pill"><span class="label">Overall Est. GMV Opportunity (AED, L30D) </span><span class="value" id="pill-gmv">—</span></div>
+        <div class="muted text-start" style="font-size:0.72em;">Results compare the top 15 products from noon and Amazon. Some brands marked as missing may appear lower 
+        on noon but are present in Amazon's top 15. Est. potential GMV is estimated based on ideal search hits share on the keywords (given an ideal assortment), 
+        category average conversion and Amazon's average offer price</div>
+      </div>
+    </div>
+
+    <!-- Keyword level insights -->
+    <div class="row g-4">
+      <div class="col-lg-6">
+        <div class="section-card">
+          <div class="section-title">Keyword Insights — Generic</div>
+          <table id="tbl-generic" class="table table-striped table-hover w-100"></table>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="section-card">
+          <div class="section-title">Keyword Insights — Branded</div>
+          <table id="tbl-branded" class="table table-striped table-hover w-100"></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detailed analysis -->
+    <div class="section-card mt-4">
+      <div class="d-flex justify-content-between align-items-center">
+        <div class="section-title mb-0">Detailed Analysis</div>
+      </div>
+      <p class="muted mb-2">Actionables per search term. B1 refers to priority for branded keywords, and G1 for generic</p>
+      <table id="tbl-detail" class="table table-striped table-hover w-100"></table>
+    </div>
+
+    <div class="my-4 footer-note">
+      Data source: <code>noonbigmerchsandbox.satyam.search_assortment_eval_final_draft3</code>. Report for <strong>automotive × car_covers</strong>. Generated on : <strong>23 Sep 2025, 07:23 PM</strong>
+    </div>
+  </main>
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.datatables.net/v/bs5/dt-2.0.3/b-3.0.1/fh-4.0.1/r-3.0.1/datatables.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+  <script>
+    const EXEC_SUMMARY = {"overall_score": 40502.0, "overall_st_hits": 2076, "overall_gmv_oppt": 4916.0};
+    const DATA_GENERIC = [{"search_term": "custom fit car covers", "performance": "Average (0.90)", "st_hits": 116, "gmv_oppt": 553.0, "outcome": 1, "express_share": 1.0, "filter_tag": "G1"}, {"search_term": "outdoor car covers", "performance": "Good (0.90)", "st_hits": 233, "gmv_oppt": 540.0, "outcome": 2, "express_share": 1.0, "filter_tag": "G2"}, {"search_term": "car cover", "performance": "Excellent (0.95)", "st_hits": 872, "gmv_oppt": 1914.0, "outcome": 5, "express_share": 1.0, "filter_tag": "G5"}, {"search_term": "breathable car covers", "performance": "Excellent (0.96)", "st_hits": 174, "gmv_oppt": 429.0, "outcome": 3, "express_share": 1.0, "filter_tag": "G3"}, {"search_term": "waterproof car covers", "performance": "Excellent (0.95)", "st_hits": 291, "gmv_oppt": 398.0, "outcome": 4, "express_share": 1.0, "filter_tag": "G4"}];
+    const DATA_BRANDED = [{"search_term": "allextreme car cover", "performance": "Below Average (0.75)", "st_hits": 145, "gmv_oppt": 317.0, "outcome": 1, "express_share": 1.0, "filter_tag": "B1"}, {"search_term": "roadpower car cover", "performance": "Below Average (0.77)", "st_hits": 87, "gmv_oppt": 273.0, "outcome": 8, "express_share": 1.0, "filter_tag": "B8"}, {"search_term": "caronic car cover", "performance": "Below Average (0.71)", "st_hits": 105, "gmv_oppt": 313.0, "outcome": 7, "express_share": 1.0, "filter_tag": "B7"}, {"search_term": "proadsy car cover", "performance": "Below Average (0.75)", "st_hits": 17, "gmv_oppt": 73.0, "outcome": 4, "express_share": 0.0, "filter_tag": "B4"}];
+    const DATA_DETAIL  = [{"search_term": "allextreme car cover", "brand_actionable": "Brand Allextreme is present on Amazon with 1 relevant SKU but absent on noon, which shows no Allextreme car covers in the automotive car covers subcategory.", "assortment_actionable": "Allextreme car cover assortment is missing on noon; Amazon offers a custom fit dustproof UV heat resistant cover, while noon lacks any relevant Allextreme car cover variants.", "noon_plp_link": "https://www.noon.com/uae-en/search/?q=allextreme%20car%20cover&av=0&e[search-ae]=google", "amazon_plp_link": "https://www.amazon.ae/s?k=allextreme+car+cover", "outcome": 1, "filter_tag": "B1", "performance_tag": "Below Average", "express_share": 1.0, "st_hits": 145, "gmv_oppt": 317.0}, {"search_term": "roadpower car cover", "brand_actionable": "RoadPower is present on both noon and Amazon with 13+ relevant car cover SKUs on noon and 2 on Amazon, all matching the keyword and category+subcategory well.", "assortment_actionable": "Noon offers a broader range of RoadPower car cover sizes and fits (e.g., Nissan Patrol, Land Cruiser, GMC) compared to Amazon’s fewer variants, with no irrelevant items detected.", "noon_plp_link": "https://www.noon.com/uae-en/search/?q=roadpower%20car%20cover&av=0&e[search-ae]=google", "amazon_plp_link": "https://www.amazon.ae/s?k=roadpower+car+cover", "outcome": 8, "filter_tag": "B8", "performance_tag": "Below Average", "express_share": 1.0, "st_hits": 87, "gmv_oppt": 273.0}, {"search_term": "caronic car cover", "brand_actionable": "CARONIC is present on both noon (10 SKUs) and Amazon (1 SKU) with relevant car cover products; noon shows more SKU variants focused on car covers.", "assortment_actionable": "CARONIC car covers on noon include multiple vehicle-specific fits, while Amazon shows fewer variants; noon’s assortment is broader and tightly relevant.", "noon_plp_link": "https://www.noon.com/uae-en/search/?q=caronic%20car%20cover&av=0&e[search-ae]=google", "amazon_plp_link": "https://www.amazon.ae/s?k=caronic+car+cover", "outcome": 7, "filter_tag": "B7", "performance_tag": "Below Average", "express_share": 1.0, "st_hits": 105, "gmv_oppt": 313.0}, {"search_term": "proadsy car cover", "brand_actionable": "Proadsy is present on both noon (1 SKU) and Amazon (4 SKUs), all strictly relevant to automotive car covers matching the keyword.", "assortment_actionable": "Noon offers fewer Proadsy car cover variants (1) compared to Amazon’s broader range (4), limiting choice within the category and subcategory.", "noon_plp_link": "https://www.noon.com/uae-en/search/?q=proadsy%20car%20cover&av=0&e[search-ae]=google", "amazon_plp_link": "https://www.amazon.ae/s?k=proadsy+car+cover", "outcome": 4, "filter_tag": "B4", "performance_tag": "Below Average", "express_share": 0.0, "st_hits": 17, "gmv_oppt": 73.0}, {"search_term": "custom fit car covers", "brand_actionable": "Brands missing on noon: GORDITA, kayme, Proadsy, aoulette, JURMON, FiveFox, Allextreme, sportuli. Common brands: none.", "assortment_actionable": "Noon shows fewer SKUs and less brand variety with dominance of ELTRAZONE, KENCO, and HERIOS; Amazon offers more custom-fit models for diverse car makes and premium variants.", "noon_plp_link": "https://www.noon.com/uae-en/search/?q=custom%20fit%20car%20covers&av=0&e[search-ae]=google", "amazon_plp_link": "https://www.amazon.ae/s?k=custom+fit+car+covers", "outcome": 1, "filter_tag": "G1", "performance_tag": "Average", "express_share": 1.0, "st_hits": 116, "gmv_oppt": 553.0}, {"search_term": "outdoor car covers", "brand_actionable": "Brands missing on noon: kayme, GORDITA, Favoto, DAYONG, Guranko, ROADPOWER, SYOSI, TAME, YSOAE. Common brands: none.", "assortment_actionable": "Noon shows multiple generic and GROIC variants but lacks custom fit and premium options like kayme and GORDITA seen on Amazon; some Amazon listings have clearer model-specific fits.", "noon_plp_link": "https://www.noon.com/uae-en/search/?q=outdoor%20car%20covers&av=0&e[search-ae]=google", "amazon_plp_link": "https://www.amazon.ae/s?k=outdoor+car+covers", "outcome": 2, "filter_tag": "G2", "performance_tag": "Good", "express_share": 1.0, "st_hits": 233, "gmv_oppt": 540.0}, {"search_term": "car cover", "brand_actionable": "Brands missing on noon: kayme, Beauenty, DAYONG, CARONIC, SYOSI, Morelian. Common brands: ROADPOWER.", "assortment_actionable": "Noon shows many generic and fewer branded SKUs with some overlap in styles; Amazon offers more branded variety (e.g., kayme, Beauenty) and consistent relevance.", "noon_plp_link": "https://www.noon.com/uae-en/search/?q=car%20cover&av=0&e[search-ae]=google", "amazon_plp_link": "https://www.amazon.ae/s?k=car+cover", "outcome": 5, "filter_tag": "G5", "performance_tag": "Excellent", "express_share": 1.0, "st_hits": 872, "gmv_oppt": 1914.0}, {"search_term": "breathable car covers", "brand_actionable": "Brands missing on noon: kayme, HALAMODO, GORDITA, Favoto, Guranko, Beaunety, WinPower, DAYONG, MORNYRAY, Beauenty. Common brands: fenex.", "assortment_actionable": "Noon shows multiple DUNISO and HERIOS variants but includes some seat covers; Amazon offers broader brand variety and more precise breathable car cover options like HALAMODO and Favoto.", "noon_plp_link": "https://www.noon.com/uae-en/search/?q=breathable%20car%20covers&av=0&e[search-ae]=google", "amazon_plp_link": "https://www.amazon.ae/s?k=breathable+car+covers", "outcome": 3, "filter_tag": "G3", "performance_tag": "Excellent", "express_share": 1.0, "st_hits": 174, "gmv_oppt": 429.0}, {"search_term": "waterproof car covers", "brand_actionable": "Brands missing on noon: kayme, GORDITA, Beauenty, DAYONG, Beaunety, SYOSI, TAME, iwow. Common brands: None.", "assortment_actionable": "Noon shows more branded options like GROIC, HERIOS, but many Amazon listings have diverse materials and sizes; noon includes some generics and fewer disposable covers seen on Amazon.", "noon_plp_link": "https://www.noon.com/uae-en/search/?q=waterproof%20car%20covers&av=0&e[search-ae]=google", "amazon_plp_link": "https://www.amazon.ae/s?k=waterproof+car+covers", "outcome": 4, "filter_tag": "G4", "performance_tag": "Excellent", "express_share": 1.0, "st_hits": 291, "gmv_oppt": 398.0}];
+
+    const clean_text = (text) => text.replace(/ /g, '_')
+
+    const linkToDetail = (term) => `<a class="kw-link" href=#${term.replace(/ /g, '_')}>${term}</a>`;
+
+    const toNumber = (v) => {
+      if (v === null || v === undefined) return NaN;
+      if (typeof v === 'number') return v;
+      if (typeof v === 'string') {
+        const s = v.replace(/,/g, '').trim();
+        return s === '' ? NaN : Number(s);
+      }
+      return NaN;
+    };
+    const fmtInt = (v) => Number.isFinite(toNumber(v)) ? toNumber(v).toLocaleString() : "—";
+    const fmtNum = (v) =>
+      Number.isFinite(toNumber(v))
+        ? toNumber(v).toLocaleString(undefined, { minimumFractionDigits:0, maximumFractionDigits:2 })
+        : "—";
+
+    const toLink = (url, label) => {
+      if (!url || typeof url !== 'string') return '';
+      const safe = url.startsWith('http') ? url : null;
+      return safe ? `<a href="${safe}" target="_blank" rel="noopener">${label || 'Open'}</a>` : '';
+    };
+    const escapeHTML = (s) =>
+      String(s ?? '').replace(/[&<>"']/g, (m) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]);
+
+    // Build single "Actionables" cell (no Show more / no clamping)
+    const makeActionablesCell = (row) => {
+      const items = [];
+      if (row.assortment_actionable) items.push(`<div class="act"><div class="tag">Assortment</div><div class="txt wrap-text">${escapeHTML(row.assortment_actionable)}</div></div>`);
+      if (row.brand_actionable) items.push(`<div class="act"><div class="tag">Brand</div><div class="txt wrap-text">${escapeHTML(row.brand_actionable)}</div></div>`);
+      const content = items.join('');
+      return `<div class="cell-stack"><div class="wrap-text">${content}</div></div>`;
+    };
+
+    // Helper: pick GMV opportunity from available keys (gmv_oppt preferred)
+    const pickGmvOppt = (row) => {
+      const v = row.gmv_oppt ?? row.gmv_loss ?? row.gmv_opportunity ?? null;
+      return v;
+    };
+
+    // Helper: get keyword type from outcome/priority
+    function getKeywordType(outcome) {
+      if (typeof outcome !== "string") return "";
+      if (/^B\d+$/i.test(outcome.trim())) return "B";
+      if (/^G\d+$/i.test(outcome.trim())) return "G";
+      return "";
+    }
+
+    // Custom natural sort for filter_tag (e.g., G1, G2, ..., G10, B1, B2, ...)
+    function filterTagNaturalSort(a, b) {
+      // a and b are the cell values (e.g., "G1", "G10", "B2", etc.)
+      // Handle null/undefined/empty
+      a = (a || '').toUpperCase();
+      b = (b || '').toUpperCase();
+      // Extract letter prefix and number
+      const re = /^([A-Z]+)(\d+)$/i;
+      const ma = a.match(re);
+      const mb = b.match(re);
+      if (ma && mb) {
+        // Compare prefix first
+        if (ma[1] < mb[1]) return -1;
+        if (ma[1] > mb[1]) return 1;
+        // Compare number as integer
+        const na = parseInt(ma[2], 10);
+        const nb = parseInt(mb[2], 10);
+        return na - nb;
+      }
+      // If only one matches, put matching one first
+      if (ma) return -1;
+      if (mb) return 1;
+      // Fallback to string compare
+      return a.localeCompare(b);
+    }
+
+    // Register the custom sort with DataTables
+    if (window.jQuery && $.fn.dataTable) {
+      // Ascending
+      $.fn.dataTable.ext.type.order['filter-tag-nat-asc'] = function(a, b) {
+        return filterTagNaturalSort(a, b);
+      };
+      // Descending
+      $.fn.dataTable.ext.type.order['filter-tag-nat-desc'] = function(a, b) {
+        return filterTagNaturalSort(b, a);
+      };
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('pill-score').textContent = fmtInt(EXEC_SUMMARY.overall_score ?? 0);
+      document.getElementById('pill-hits').textContent  = fmtInt(EXEC_SUMMARY.overall_st_hits);
+      document.getElementById('pill-gmv').textContent   = fmtNum(EXEC_SUMMARY.overall_gmv_oppt);
+
+      // Generic table (center columns)
+      $('#tbl-generic').DataTable({
+        data: DATA_GENERIC,
+        columns: [
+          { title:'Search Term',     data:'search_term', className:'text-center align-middle', render:(d)=>linkToDetail(d)},
+          { 
+            title:'Priority',        
+            data:'filter_tag',       
+            className:'text-center align-middle', 
+            render:(d)=>escapeHTML(d ?? '—'),
+            type: 'filter-tag-nat' // Use our custom natural sort
+          },
+          { title:'Est. Hits',     data:'st_hits',     className:'text-center align-middle', render:(d)=>fmtInt(d) },
+          { title:'Est. GMV Potential', data:'gmv_oppt',      className:'text-center align-middle', render:(d)=>fmtNum(d) },
+          { title:'Express share', data:'express_share', className:'text-center align-middle', render:(d)=>
+            Number.isFinite(toNumber(d))
+              ? (toNumber(d)*100).toLocaleString(undefined, undefined) + '%'
+              : "—"
+          }
+        ],
+        order: [[1,'asc']], responsive: true, fixedHeader: false, deferRender: true, autoWidth: false,
+        pageLength: 10, lengthMenu: [10,25,50,100], dom:'Bfrtip', buttons:['pageLength','copy','csv']
+      });
+
+      // Branded table (center columns)
+      $('#tbl-branded').DataTable({
+        data: DATA_BRANDED,
+        columns: [
+          { title:'Search Term',     data:'search_term', className:'text-center align-middle', render:(d)=>linkToDetail(d) },
+          { 
+            title:'Priority',        
+            data:'filter_tag',       
+            className:'text-center align-middle', 
+            render:(d)=>escapeHTML(d ?? '—'),
+            type: 'filter-tag-nat' // Use our custom natural sort
+          },
+          { title:'Est. Hits',     data:'st_hits',     className:'text-center align-middle', render:(d)=>fmtInt(d) },
+          { title:'Est. GMV Potential', data:'gmv_oppt',      className:'text-center align-middle', render:(d)=>fmtNum(d) },
+          { title:'Express share', data:'express_share', className:'text-center align-middle', render:(d)=>
+            Number.isFinite(toNumber(d))
+              ? (toNumber(d)*100).toLocaleString(undefined, undefined) + '%'
+              : "—"
+          }
+        ],
+        order: [[1,'asc']], responsive: true, fixedHeader: false, deferRender: true, autoWidth: false,
+        pageLength: 10, lengthMenu: [10,25,50,100], dom:'Bfrtip', buttons:['pageLength','copy','csv']
+      });
+
+      // Detailed Analysis (center everything except Actionables)
+      const dtDetail = $('#tbl-detail').DataTable({
+        data: DATA_DETAIL,
+        columns: [
+          { title:'Search Term',     data:'search_term',   width:'10%', className:'text-center align-middle' },
+          { 
+            title:'Priority',        
+            data:'filter_tag',       
+            width:'8%', 
+            className:'text-center align-middle', 
+            render:(d)=>escapeHTML(d ?? '—'),
+            type: 'filter-tag-nat' // Use our custom natural sort
+          },
+          { title:'Insights',        data:null,            width:'44%', className:'col-actionables', render:(d,t,row)=>makeActionablesCell(row) },
+          { title:'Est. Hits',       data:'st_hits',       width:'8%', className:'text-center align-middle', render:(d)=>fmtInt(d) },
+          { title:'Est. GMV Potential', data:null,          width:'10%', className:'text-center align-middle', render:(d,t,row)=>fmtNum(pickGmvOppt(row)) },
+          { title:'Express share',   data:'express_share', className:'text-center align-middle', render:(d)=>
+            Number.isFinite(toNumber(d))
+              ? (toNumber(d)*100).toLocaleString(undefined, undefined) + '%'
+              : "—"
+          },
+          { title:'PLP',             data:null,            width:'10%', className:'text-center align-middle',
+          render:(d,t,row)=>{const parts = [];
+            if (row.noon_plp_link)   parts.push(toLink(row.noon_plp_link,   'noon search results'));
+            if (row.amazon_plp_link) parts.push(toLink(row.amazon_plp_link, 'Amazon search results'));
+            return parts.length ? '<div class="plp-links">' + parts.join('') + '</div>' : '—';
+          }
+          }
+        ],
+        order: [[1,'asc']], responsive: false, fixedHeader: false, deferRender: true, autoWidth: false,
+        pageLength: 15, lengthMenu: [15,25,50,100], dom:'Bfrtip', buttons:['pageLength','copy','csv'],
+        rowId: (d) => d.search_term.replace(/ /g, '_')
+      });
+    });
+  </script>
+</body>
+</html>

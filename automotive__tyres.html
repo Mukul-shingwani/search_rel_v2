@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Search Assortment — automotive / tyres</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Fonts: Proxima Nova if installed, else Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- DataTables + Buttons -->
+  <link rel="stylesheet" href="https://cdn.datatables.net/v/bs5/dt-2.0.3/b-3.0.1/fh-4.0.1/r-3.0.1/datatables.min.css"/>
+
+  <style>
+    :root {
+      --bg: #0f1220;
+      --card: #141a2a;
+      --card-2: #181e31;
+      --text: #f3f6ff;
+      --text-dim: #b8c1d9;
+      --border: #252c42;
+      --brand: #7aa2ff;
+      --brand-soft: #1a2340;
+      --card-radius: 14px;
+    }
+    * { font-family: "Proxima Nova", Inter, "Segoe UI", Roboto, system-ui, -apple-system, Arial, sans-serif; }
+    html, body { background: var(--bg); color: var(--text); }
+
+    .page-header {
+      background: radial-gradient(1200px 400px at 10% -10%, rgba(122,162,255,.25), transparent),
+                  linear-gradient(90deg, var(--brand-soft), rgba(10,14,25,0.6));
+      border-bottom: 1px solid var(--border);
+    }
+    .page-header h2 { font-weight: 700; letter-spacing:.2px; color: var(--text); }
+    .muted { color: var(--text-dim); }
+
+    .btn, .btn:focus, .btn:active { box-shadow:none; }
+    .btn-outline-secondary { color: var(--text); border-color: var(--border); }
+    .btn-outline-secondary:hover { background: var(--card-2); border-color: var(--border); }
+    .btn-outline-primary { color: var(--text); border-color: var(--brand); }
+    .btn-outline-primary:hover { background: rgba(122,162,255,.12); }
+
+    .section-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--card-radius);
+      box-shadow: 0 8px 24px rgba(0,0,0,.25);
+      padding: 1rem 1.1rem 1.25rem 1.1rem;
+      height: 100%;
+      contain: content;
+      color: var(--text);
+    }
+    .section-title { font-weight: 700; font-size: 1.05rem; margin-bottom:.6rem; color: var(--text); }
+
+    /* Executive summary pills */
+    .summary-pill {
+      border-radius: 999px;
+      padding:.7rem 1.1rem;
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+      border:1px solid var(--border);
+      display:inline-flex; gap:.6rem; align-items:center;
+      box-shadow: 0 6px 16px rgba(0,0,0,.25);
+      margin:.3rem .6rem .3rem 0;
+    }
+    .summary-pill .label { color: var(--text-dim); font-size:.9rem; }
+    .summary-pill .value { font-weight:700; color: var(--text); font-size:1.05rem; }
+
+    /* DataTables dark theme */
+    table.dataTable { table-layout: fixed; color: var(--text); }
+    table.table {
+      --bs-table-color: var(--text);
+      --bs-table-bg: transparent;
+      --bs-table-striped-color: var(--text);
+      --bs-table-hover-color: var(--text);
+      --bs-table-border-color: var(--border);
+      --bs-table-striped-bg: rgba(255,255,255,0.06);
+      --bs-table-hover-bg: rgba(255,255,255,0.08);
+    }
+    /* Center headers horizontally + vertically */
+    table.dataTable thead th {
+      background: var(--card-2) !important;
+      border-bottom: 1px solid var(--border) !important;
+      color: var(--text) !important;
+      text-align: center !important;
+      vertical-align: middle !important;
+    }
+    /* Center body cells horizontally + vertically by default */
+    table.dataTable tbody td {
+      border-color: var(--border);
+      color: var(--text);
+      text-align: center;
+      vertical-align: middle;
+    }
+    /* Override DataTables' numeric right-align helpers */
+    table.dataTable td.dt-type-numeric,
+    table.dataTable th.dt-type-numeric,
+    table.dataTable td.dt-right,
+    table.dataTable th.dt-right,
+    table.dataTable td.dt-body-right,
+    table.dataTable th.dt-head-right {
+      text-align: center !important;
+    }
+
+    /* Inputs */
+    .dataTables_wrapper .dataTables_info,
+    .dataTables_wrapper .dataTables_length label,
+    .dataTables_wrapper .dataTables_filter label { color: var(--text-dim); }
+    .dataTables_wrapper .dataTables_filter input,
+    .dataTables_wrapper .dataTables_length select {
+      background: var(--card-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+    .dataTables_wrapper .dataTables_filter input::placeholder { color: var(--text-dim); }
+
+    /* Pagination */
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+      color: var(--text) !important; border-color: var(--border) !important;
+      background: transparent !important;
+    }
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+      background: var(--brand-soft) !important; border-color: var(--border) !important; color: var(--text) !important;
+    }
+
+    a, a:visited { color: var(--brand); }
+    a:hover { color: #aecdff; }
+
+    /* Long text handling */
+    .wrap-text { white-space: pre-wrap; line-height:1.35rem; color: var(--text); }
+
+    /* Actionables block */
+    .act {
+      display: grid;
+      grid-template-columns: 130px 1fr;
+      align-items: center;
+      column-gap: .8rem;
+      background: var(--card-2); border: 1px solid var(--border);
+      border-radius: 12px; padding:.65rem .8rem; color: var(--text);
+      text-align: left;
+    }
+    .act .tag {
+      justify-self: center;
+      font-size:.72rem; font-weight:700; text-transform:uppercase;
+      letter-spacing:.04em; color: var(--brand);
+      padding:.22rem .55rem; border:1px solid var(--brand); border-radius:999px;
+      background: rgba(122,162,255,.08);
+    }
+    .act .txt { color: var(--text); }
+
+    /* Left-align ONLY the Actionables column */
+    td.col-actionables, th.col-actionables {
+      text-align: left !important;
+      vertical-align: top !important;
+    }
+
+    /* PLP combined cell: stack links vertically */
+    .plp-links a { display:block; line-height:1.2; margin-bottom:.25rem; }
+
+    .footer-note { color: var(--text-dim); font-size:.85rem; }
+
+    /* Filter dropdown styling */
+    .filter-bar {
+      margin-bottom: 1rem;
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+  </style>
+</head>
+
+<body>
+  <header class="page-header py-3">
+    <div class="container">
+      <div class="d-flex flex-wrap align-items-center justify-content-between">
+        <div>
+          <h2 class="mb-0">Search Assortment — automotive / tyres</h2>
+          <div class="muted">Category: <strong>automotive</strong> &nbsp;|&nbsp; Subtype: <strong>tyres</strong></div>
+        </div>
+        <div class="text-end">
+          <a class="btn btn-outline-secondary btn-sm" href="#" onclick="window.print()">Print</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container my-4">
+
+    <!-- Executive Summary -->
+    <div class="section-card mb-4">
+      <div class="d-flex align-items-center flex-wrap">
+        <div class="summary-pill"><span class="label">Category GMV (AED, L30D)</span><span class="value" id="pill-score">—</span></div>
+        <div class="summary-pill"><span class="label">Overall Est. Search Hits (L30D)</span><span class="value" id="pill-hits">—</span></div>
+        <div class="summary-pill"><span class="label">Overall Est. GMV Opportunity (AED, L30D) </span><span class="value" id="pill-gmv">—</span></div>
+        <div class="muted text-start" style="font-size:0.72em;">Results compare the top 15 products from noon and Amazon. Some brands marked as missing may appear lower 
+        on noon but are present in Amazon's top 15. Est. potential GMV is estimated based on ideal search hits share on the keywords (given an ideal assortment), 
+        category average conversion and Amazon's average offer price</div>
+      </div>
+    </div>
+
+    <!-- Keyword level insights -->
+    <div class="row g-4">
+      <div class="col-lg-6">
+        <div class="section-card">
+          <div class="section-title">Keyword Insights — Generic</div>
+          <table id="tbl-generic" class="table table-striped table-hover w-100"></table>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="section-card">
+          <div class="section-title">Keyword Insights — Branded</div>
+          <table id="tbl-branded" class="table table-striped table-hover w-100"></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detailed analysis -->
+    <div class="section-card mt-4">
+      <div class="d-flex justify-content-between align-items-center">
+        <div class="section-title mb-0">Detailed Analysis</div>
+      </div>
+      <p class="muted mb-2">Actionables per search term. B1 refers to priority for branded keywords, and G1 for generic</p>
+      <table id="tbl-detail" class="table table-striped table-hover w-100"></table>
+    </div>
+
+    <div class="my-4 footer-note">
+      Data source: <code>noonbigmerchsandbox.satyam.search_assortment_eval_final_draft3</code>. Report for <strong>automotive × tyres</strong>. Generated on : <strong>23 Sep 2025, 07:24 PM</strong>
+    </div>
+  </main>
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.datatables.net/v/bs5/dt-2.0.3/b-3.0.1/fh-4.0.1/r-3.0.1/datatables.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+  <script>
+    const EXEC_SUMMARY = {"overall_score": 344.0, "overall_st_hits": 870, "overall_gmv_oppt": 15071.0};
+    const DATA_GENERIC = [{"search_term": "high performance car tyres", "performance": "Below Average (0.82)", "st_hits": 38, "gmv_oppt": 554.0, "outcome": 4, "express_share": 0.93, "filter_tag": "G4"}, {"search_term": "car tyres", "performance": "Below Average (0.78)", "st_hits": 126, "gmv_oppt": 867.0, "outcome": 3, "express_share": 0.93, "filter_tag": "G3"}, {"search_term": "17 inch car tyres", "performance": "Poor (0.63)", "st_hits": 63, "gmv_oppt": 1235.0, "outcome": 1, "express_share": 0.31, "filter_tag": "G1"}, {"search_term": "tire valve", "performance": "Below Average (0.82)", "st_hits": 25, "gmv_oppt": 34.0, "outcome": 5, "express_share": 1.0, "filter_tag": "G5"}, {"search_term": "all season car tyres", "performance": "Very Poor (0.34)", "st_hits": 38, "gmv_oppt": 679.0, "outcome": 2, "express_share": 1.0, "filter_tag": "G2"}];
+    const DATA_BRANDED = [{"search_term": "yokohama car tyres", "performance": "Poor (0.46)", "st_hits": 44, "gmv_oppt": 1092.0, "outcome": 4, "express_share": 1.0, "filter_tag": "B4"}, {"search_term": "goodyear car tyres", "performance": "Poor (0.54)", "st_hits": 75, "gmv_oppt": 1155.0, "outcome": 2, "express_share": 0.0, "filter_tag": "B2"}, {"search_term": "hankook car tyres", "performance": "Below Average (0.73)", "st_hits": 63, "gmv_oppt": 1543.0, "outcome": 9, "express_share": 0.0, "filter_tag": "B9"}, {"search_term": "bridgestone car tyres", "performance": "Poor (0.50)", "st_hits": 88, "gmv_oppt": 1553.0, "outcome": 1, "express_share": 0.0, "filter_tag": "B1"}, {"search_term": "mrf car tyres", "performance": "Very Poor (0.37)", "st_hits": 56, "gmv_oppt": 611.0, "outcome": 5, "express_share": 1.0, "filter_tag": "B5"}, {"search_term": "michelin car tyres", "performance": "Average (0.88)", "st_hits": 82, "gmv_oppt": 650.0, "outcome": 8, "express_share": 0.6, "filter_tag": "B8"}, {"search_term": "apollo car tyres", "performance": "Poor (0.66)", "st_hits": 44, "gmv_oppt": 308.0, "outcome": 6, "express_share": 1.0, "filter_tag": "B6"}, {"search_term": "dunlop car tyres", "performance": "Below Average (0.77)", "st_hits": 50, "gmv_oppt": 604.0, "outcome": 10, "express_share": 0.0, "filter_tag": "B10"}, {"search_term": "pirelli car tyres", "performance": "Below Average (0.79)", "st_hits": 69, "gmv_oppt": 3801.0, "outcome": 7, "express_share": 0.0, "filter_tag": "B7"}];
+    const DATA_DETAIL  = [{"search_term": "yokohama car tyres", "brand_actionable": "Yokohama is present on Amazon with 15 relevant tyre SKUs but absent on noon; noon shows no Yokohama car tyres in automotive tyres subcategory.", "assortment_actionable": "Amazon offers diverse Yokohama tyre variants (sizes, types) strictly within category; noon results lack any Yokohama tyres, showing only unrelated tyre inflators and accessories.", "noon_plp_link": "https://www.noon.com/uae-en/search/?q=yokohama%20car%20tyres&av=0&e[search-ae]=google", "amazon_plp_link": "https://www.amazon.ae/s?k=yokohama+car+tyres", "outcome": 4, "filter_tag": "B4", "performance_tag": "Poor", "express_share": 1.0, "st_hits": 44, "gmv_oppt": 1092.0}, {"search_term": "goodyear car tyres", "brand_actionable": "Goodyear is present on both noon and Amazon; noon shows 4 products but none are car tyres, while Amazon offers multiple Goodyear car tyre variants relevant to automotive tyres.", "assortment_actionable": "Noon lacks Goodyear car tyre SKUs, showing only accessories and unrelated items, whereas Amazon provides diverse Goodyear car tyre models and sizes within automotive tyres.", "noon_plp_link": "https://www.noon.com/uae-en/search/?q=goodyear%20car%20tyres&av=0&e[search-ae]=google", "amazon_plp_link": "https://www.amazon.ae/s?k=goodyear+car+tyres", "outcome": 2, "filter_tag": "B2", "performance_tag": "Poor", "express_share": 0.0, "st_hits": 75, "gmv_oppt": 1155.0}, {"search_term": "hankook car tyres", "brand_actionable": "Hankook is present on both noon and Amazon with 15 and 15 SKUs respectively, all relevant to car tyres in automotive category.", "assortment_actionable": "Variant coverage is comparable with both platforms offering multiple Hankook tyre models and sizes; noon matches Amazon in relevant Hankook car tyre assortment depth.", "noon_plp_link": "https://www.noon.com/uae-en/search/?q=hankook%20car%20tyres&av=0&e[search-ae]=google", "amazon_plp_link": "https://www.amazon.ae/s?k=hankook+car+tyres", "outcome": 9, "filter_tag": "B9", "performance_tag": "Below Average", "express_share": 0.0, "st_hits": 63, "gmv_oppt": 1543.0}, {"search_term": "bridgestone car tyres", "brand_actionable": "Bridgestone is absent on noon but well represented on Amazon with multiple relevant car tyre SKUs matching the keyword and category.", "assortment_actionable": "Noon shows no relevant Bridgestone car tyres, while Amazon offers diverse sizes and types including winter, SUV, and performance tyres.", "noon_plp_link": "https://www.noon.com/uae-en/search/?q=bridgestone%20car%20tyres&av=0&e[search-ae]=google", "amazon_plp_link": "https://www.amazon.ae/s?k=bridgestone+car+tyres", "outcome": 1, "filter_tag": "B1", "performance_tag": "Poor", "express_share": 0.0, "st_hits": 88, "gmv_oppt": 1553.0}, {"search_term": "mrf car tyres", "brand_actionable": "MRF is present on both noon and Amazon; noon shows 11 MRF products but none are car tyres, unlike Amazon which has multiple MRF car tyre SKUs relevant to the keyword and subcategory.", "assortment_actionable": "Noon’s MRF listings lack car tyre variants, focusing on protective gear and accessories, whereas Amazon offers diverse MRF car tyre sizes and types, indicating a clear assortment gap for relevant tyres.", "noon_plp_link": "https://www.noon.com/uae-en/search/?q=mrf%20car%20tyres&av=0&e[search-ae]=google", "amazon_plp_link": "https://www.amazon.ae/s?k=mrf+car+tyres", "outcome": 5, "filter_tag": "B5", "performance_tag": "Very Poor", "express_share": 1.0, "st_hits": 56, "gmv_oppt": 611.0}, {"search_term": "michelin car tyres", "brand_actionable": "Michelin is well represented on both noon and Amazon with multiple SKUs relevant to car tyres category; noon shows strong presence but fewer tyre SKUs than Amazon.", "assortment_actionable": "Noon includes mainly tyre accessories and fewer actual Michelin car tyre SKUs compared to Amazon’s broader tyre range including Primacy, CrossClimate2, Pilot Sport lines.", "noon_plp_link": "https://www.noon.com/uae-en/search/?q=michelin%20car%20tyres&av=0&e[search-ae]=google", "amazon_plp_link": "https://www.amazon.ae/s?k=michelin+car+tyres", "outcome": 8, "filter_tag": "B8", "performance_tag": "Average", "express_share": 0.6, "st_hits": 82, "gmv_oppt": 650.0}, {"search_term": "apollo car tyres", "brand_actionable": "Apollo brand is present on Amazon with multiple car tyre SKUs but absent on noon; noon shows no Apollo tyres despite keyword relevance.", "assortment_actionable": "Noon lacks Apollo car tyres entirely, showing only tyre inflators and accessories; Amazon offers multiple Apollo tyre variants matching category and subcategory.", "noon_plp_link": "https://www.noon.com/uae-en/search/?q=apollo%20car%20tyres&av=0&e[search-ae]=google", "amazon_plp_link": "https://www.amazon.ae/s?k=apollo+car+tyres", "outcome": 6, "filter_tag": "B6", "performance_tag": "Poor", "express_share": 1.0, "st_hits": 44, "gmv_oppt": 308.0}, {"search_term": "dunlop car tyres", "brand_actionable": "Dunlop is present on both noon and Amazon with relevant car tyre SKUs; noon offers 15 Dunlop tyre variants, Amazon has 11, all fitting automotive tyres category.", "assortment_actionable": "Noon shows a broader range of Dunlop car tyre sizes and models (e.g., SP Sport Maxx, Grandtrek) compared to Amazon, which includes some motorcycle and non-car tyre items.", "noon_plp_link": "https://www.noon.com/uae-en/search/?q=dunlop%20car%20tyres&av=0&e[search-ae]=google", "amazon_plp_link": "https://www.amazon.ae/s?k=dunlop+car+tyres", "outcome": 10, "filter_tag": "B10", "performance_tag": "Below Average", "express_share": 0.0, "st_hits": 50, "gmv_oppt": 604.0}, {"search_term": "pirelli car tyres", "brand_actionable": "Pirelli is present on both noon and Amazon with relevant car tyre SKUs; noon shows 3 variants vs. Amazon’s broader 13 variants in automotive tyres.", "assortment_actionable": "Noon offers fewer Pirelli car tyre variants (3) compared to Amazon’s wider range (13), limiting variant diversity within the same category and subcategory.", "noon_plp_link": "https://www.noon.com/uae-en/search/?q=pirelli%20car%20tyres&av=0&e[search-ae]=google", "amazon_plp_link": "https://www.amazon.ae/s?k=pirelli+car+tyres", "outcome": 7, "filter_tag": "B7", "performance_tag": "Below Average", "express_share": 0.0, "st_hits": 69, "gmv_oppt": 3801.0}, {"search_term": "high performance car tyres", "brand_actionable": "Brands missing on noon: Goodyear, Yokohama, Dunlop, Pirelli, Forceum. Common brands: Michelin, AstroAI.", "assortment_actionable": "Noon shows many irrelevant or accessory items (e.g., scooters, inflators) and fewer high-performance tyre variants; Amazon has stronger premium tyre options and cleaner relevance.", "noon_plp_link": "https://www.noon.com/uae-en/search/?q=high%20performance%20car%20tyres&av=0&e[search-ae]=google", "amazon_plp_link": "https://www.amazon.ae/s?k=high+performance+car+tyres", "outcome": 4, "filter_tag": "G4", "performance_tag": "Below Average", "express_share": 0.93, "st_hits": 38, "gmv_oppt": 554.0}, {"search_term": "car tyres", "brand_actionable": "Brands missing on noon: MICHELIN, Apollo, Goodyear, DUNLOP, MRF, Bridgestone. Common brands: none.", "assortment_actionable": "Noon shows mostly generic and accessory items with few actual tyres, while Amazon offers diverse branded tyres (e.g., DUNLOP, MICHELIN) and RC car tyres, indicating limited relevant tyre SKUs on noon.", "noon_plp_link": "https://www.noon.com/uae-en/search/?q=car%20tyres&av=0&e[search-ae]=google", "amazon_plp_link": "https://www.amazon.ae/s?k=car+tyres", "outcome": 3, "filter_tag": "G3", "performance_tag": "Below Average", "express_share": 0.93, "st_hits": 126, "gmv_oppt": 867.0}, {"search_term": "17 inch car tyres", "brand_actionable": "Brands missing on noon: DUNLOP, Yokohama, Hankook, MRF, Maruti, Debica, Goodyear, Forceum, Nitto, MICHELIN, DELINTE. Common brands: None.", "assortment_actionable": "Noon shows mostly wheel covers, brushes, and accessories with limited actual 17 inch tyre SKUs; Amazon offers diverse, relevant tyre models and sizes.", "noon_plp_link": "https://www.noon.com/uae-en/search/?q=17%20inch%20car%20tyres&av=0&e[search-ae]=google", "amazon_plp_link": "https://www.amazon.ae/s?k=17+inch+car+tyres", "outcome": 1, "filter_tag": "G1", "performance_tag": "Poor", "express_share": 0.31, "st_hits": 63, "gmv_oppt": 1235.0}, {"search_term": "tire valve", "brand_actionable": "Brands missing on noon: VELEGO, Folany, Jiayi, Keenso, APEX PERFORMANCE PRODUCTS, CKAuto, Vaincre. Common brands: SOLDOUT. Noon shows 14 brands, Amazon has 8 identified brands, with several missing on noon.", "assortment_actionable": "Noon has more generic and branded valve caps and tool kits but fewer metal valve stem variants and angled valve stems compared to Amazon; some overlap in basic valve caps but Amazon shows more specialized valve stems.", "noon_plp_link": "https://www.noon.com/uae-en/search/?q=tire%20valve&av=0&e[search-ae]=google", "amazon_plp_link": "https://www.amazon.ae/s?k=tire+valve", "outcome": 5, "filter_tag": "G5", "performance_tag": "Below Average", "express_share": 1.0, "st_hits": 25, "gmv_oppt": 34.0}, {"search_term": "all season car tyres", "brand_actionable": "Brands missing on noon: Pirelli, DELINTE, Hankook, Goodyear, Apollo, DUNLOP, MRF. Common brands: Michelin.", "assortment_actionable": "Noon shows mostly car covers and mats, lacking actual all-season tyre SKUs; Amazon offers diverse all-season tyres from multiple brands with relevant specs and sizes.", "noon_plp_link": "https://www.noon.com/uae-en/search/?q=all%20season%20car%20tyres&av=0&e[search-ae]=google", "amazon_plp_link": "https://www.amazon.ae/s?k=all+season+car+tyres", "outcome": 2, "filter_tag": "G2", "performance_tag": "Very Poor", "express_share": 1.0, "st_hits": 38, "gmv_oppt": 679.0}];
+
+    const clean_text = (text) => text.replace(/ /g, '_')
+
+    const linkToDetail = (term) => `<a class="kw-link" href=#${term.replace(/ /g, '_')}>${term}</a>`;
+
+    const toNumber = (v) => {
+      if (v === null || v === undefined) return NaN;
+      if (typeof v === 'number') return v;
+      if (typeof v === 'string') {
+        const s = v.replace(/,/g, '').trim();
+        return s === '' ? NaN : Number(s);
+      }
+      return NaN;
+    };
+    const fmtInt = (v) => Number.isFinite(toNumber(v)) ? toNumber(v).toLocaleString() : "—";
+    const fmtNum = (v) =>
+      Number.isFinite(toNumber(v))
+        ? toNumber(v).toLocaleString(undefined, { minimumFractionDigits:0, maximumFractionDigits:2 })
+        : "—";
+
+    const toLink = (url, label) => {
+      if (!url || typeof url !== 'string') return '';
+      const safe = url.startsWith('http') ? url : null;
+      return safe ? `<a href="${safe}" target="_blank" rel="noopener">${label || 'Open'}</a>` : '';
+    };
+    const escapeHTML = (s) =>
+      String(s ?? '').replace(/[&<>"']/g, (m) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]);
+
+    // Build single "Actionables" cell (no Show more / no clamping)
+    const makeActionablesCell = (row) => {
+      const items = [];
+      if (row.assortment_actionable) items.push(`<div class="act"><div class="tag">Assortment</div><div class="txt wrap-text">${escapeHTML(row.assortment_actionable)}</div></div>`);
+      if (row.brand_actionable) items.push(`<div class="act"><div class="tag">Brand</div><div class="txt wrap-text">${escapeHTML(row.brand_actionable)}</div></div>`);
+      const content = items.join('');
+      return `<div class="cell-stack"><div class="wrap-text">${content}</div></div>`;
+    };
+
+    // Helper: pick GMV opportunity from available keys (gmv_oppt preferred)
+    const pickGmvOppt = (row) => {
+      const v = row.gmv_oppt ?? row.gmv_loss ?? row.gmv_opportunity ?? null;
+      return v;
+    };
+
+    // Helper: get keyword type from outcome/priority
+    function getKeywordType(outcome) {
+      if (typeof outcome !== "string") return "";
+      if (/^B\d+$/i.test(outcome.trim())) return "B";
+      if (/^G\d+$/i.test(outcome.trim())) return "G";
+      return "";
+    }
+
+    // Custom natural sort for filter_tag (e.g., G1, G2, ..., G10, B1, B2, ...)
+    function filterTagNaturalSort(a, b) {
+      // a and b are the cell values (e.g., "G1", "G10", "B2", etc.)
+      // Handle null/undefined/empty
+      a = (a || '').toUpperCase();
+      b = (b || '').toUpperCase();
+      // Extract letter prefix and number
+      const re = /^([A-Z]+)(\d+)$/i;
+      const ma = a.match(re);
+      const mb = b.match(re);
+      if (ma && mb) {
+        // Compare prefix first
+        if (ma[1] < mb[1]) return -1;
+        if (ma[1] > mb[1]) return 1;
+        // Compare number as integer
+        const na = parseInt(ma[2], 10);
+        const nb = parseInt(mb[2], 10);
+        return na - nb;
+      }
+      // If only one matches, put matching one first
+      if (ma) return -1;
+      if (mb) return 1;
+      // Fallback to string compare
+      return a.localeCompare(b);
+    }
+
+    // Register the custom sort with DataTables
+    if (window.jQuery && $.fn.dataTable) {
+      // Ascending
+      $.fn.dataTable.ext.type.order['filter-tag-nat-asc'] = function(a, b) {
+        return filterTagNaturalSort(a, b);
+      };
+      // Descending
+      $.fn.dataTable.ext.type.order['filter-tag-nat-desc'] = function(a, b) {
+        return filterTagNaturalSort(b, a);
+      };
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('pill-score').textContent = fmtInt(EXEC_SUMMARY.overall_score ?? 0);
+      document.getElementById('pill-hits').textContent  = fmtInt(EXEC_SUMMARY.overall_st_hits);
+      document.getElementById('pill-gmv').textContent   = fmtNum(EXEC_SUMMARY.overall_gmv_oppt);
+
+      // Generic table (center columns)
+      $('#tbl-generic').DataTable({
+        data: DATA_GENERIC,
+        columns: [
+          { title:'Search Term',     data:'search_term', className:'text-center align-middle', render:(d)=>linkToDetail(d)},
+          { 
+            title:'Priority',        
+            data:'filter_tag',       
+            className:'text-center align-middle', 
+            render:(d)=>escapeHTML(d ?? '—'),
+            type: 'filter-tag-nat' // Use our custom natural sort
+          },
+          { title:'Est. Hits',     data:'st_hits',     className:'text-center align-middle', render:(d)=>fmtInt(d) },
+          { title:'Est. GMV Potential', data:'gmv_oppt',      className:'text-center align-middle', render:(d)=>fmtNum(d) },
+          { title:'Express share', data:'express_share', className:'text-center align-middle', render:(d)=>
+            Number.isFinite(toNumber(d))
+              ? (toNumber(d)*100).toLocaleString(undefined, undefined) + '%'
+              : "—"
+          }
+        ],
+        order: [[1,'asc']], responsive: true, fixedHeader: false, deferRender: true, autoWidth: false,
+        pageLength: 10, lengthMenu: [10,25,50,100], dom:'Bfrtip', buttons:['pageLength','copy','csv']
+      });
+
+      // Branded table (center columns)
+      $('#tbl-branded').DataTable({
+        data: DATA_BRANDED,
+        columns: [
+          { title:'Search Term',     data:'search_term', className:'text-center align-middle', render:(d)=>linkToDetail(d) },
+          { 
+            title:'Priority',        
+            data:'filter_tag',       
+            className:'text-center align-middle', 
+            render:(d)=>escapeHTML(d ?? '—'),
+            type: 'filter-tag-nat' // Use our custom natural sort
+          },
+          { title:'Est. Hits',     data:'st_hits',     className:'text-center align-middle', render:(d)=>fmtInt(d) },
+          { title:'Est. GMV Potential', data:'gmv_oppt',      className:'text-center align-middle', render:(d)=>fmtNum(d) },
+          { title:'Express share', data:'express_share', className:'text-center align-middle', render:(d)=>
+            Number.isFinite(toNumber(d))
+              ? (toNumber(d)*100).toLocaleString(undefined, undefined) + '%'
+              : "—"
+          }
+        ],
+        order: [[1,'asc']], responsive: true, fixedHeader: false, deferRender: true, autoWidth: false,
+        pageLength: 10, lengthMenu: [10,25,50,100], dom:'Bfrtip', buttons:['pageLength','copy','csv']
+      });
+
+      // Detailed Analysis (center everything except Actionables)
+      const dtDetail = $('#tbl-detail').DataTable({
+        data: DATA_DETAIL,
+        columns: [
+          { title:'Search Term',     data:'search_term',   width:'10%', className:'text-center align-middle' },
+          { 
+            title:'Priority',        
+            data:'filter_tag',       
+            width:'8%', 
+            className:'text-center align-middle', 
+            render:(d)=>escapeHTML(d ?? '—'),
+            type: 'filter-tag-nat' // Use our custom natural sort
+          },
+          { title:'Insights',        data:null,            width:'44%', className:'col-actionables', render:(d,t,row)=>makeActionablesCell(row) },
+          { title:'Est. Hits',       data:'st_hits',       width:'8%', className:'text-center align-middle', render:(d)=>fmtInt(d) },
+          { title:'Est. GMV Potential', data:null,          width:'10%', className:'text-center align-middle', render:(d,t,row)=>fmtNum(pickGmvOppt(row)) },
+          { title:'Express share',   data:'express_share', className:'text-center align-middle', render:(d)=>
+            Number.isFinite(toNumber(d))
+              ? (toNumber(d)*100).toLocaleString(undefined, undefined) + '%'
+              : "—"
+          },
+          { title:'PLP',             data:null,            width:'10%', className:'text-center align-middle',
+          render:(d,t,row)=>{const parts = [];
+            if (row.noon_plp_link)   parts.push(toLink(row.noon_plp_link,   'noon search results'));
+            if (row.amazon_plp_link) parts.push(toLink(row.amazon_plp_link, 'Amazon search results'));
+            return parts.length ? '<div class="plp-links">' + parts.join('') + '</div>' : '—';
+          }
+          }
+        ],
+        order: [[1,'asc']], responsive: false, fixedHeader: false, deferRender: true, autoWidth: false,
+        pageLength: 15, lengthMenu: [15,25,50,100], dom:'Bfrtip', buttons:['pageLength','copy','csv'],
+        rowId: (d) => d.search_term.replace(/ /g, '_')
+      });
+    });
+  </script>
+</body>
+</html>
